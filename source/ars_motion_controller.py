@@ -79,15 +79,31 @@ class ArsMotionController:
 
   # PIDs
   # Pos
+  #
+  flag_ctr_pos_x = True
   pos_x_pid = ars_pid.PID()
+  #
+  flag_ctr_pos_y = True
   pos_y_pid = ars_pid.PID()
+  #
+  flag_ctr_pos_z = True
   pos_z_pid = ars_pid.PID()
+  #
+  flag_ctr_att_yaw = True
   att_yaw_pid = ars_pid.PID()
 
   # Vel
+  #
+  flag_ctr_vel_lin_x = True
   vel_lin_x_pid = ars_pid.PID()
+  #
+  flag_ctr_vel_lin_y = True
   vel_lin_y_pid = ars_pid.PID()
+  #
+  flag_ctr_vel_lin_z = True
   vel_lin_z_pid = ars_pid.PID()
+  #
+  flag_ctr_vel_ang_z = True
   vel_ang_z_pid = ars_pid.PID()
 
 
@@ -140,25 +156,41 @@ class ArsMotionController:
     self.pos_loop_out_ang_cmd = np.zeros((1,), dtype=float)
 
 
-    # TUNE PID
+    # PIDs
     # Pos
     #
+    self.flag_ctr_pos_x = True
+    self.pos_x_pid = ars_pid.PID()
     self.pos_x_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_pos_y = True
+    self.pos_y_pid = ars_pid.PID()
     self.pos_y_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_pos_z = True
+    self.pos_z_pid = ars_pid.PID()
     self.pos_z_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_att_yaw = True
+    self.att_yaw_pid = ars_pid.PID()
     self.att_yaw_pid.gains['P'] = 1.0
 
     # Vel
     #
+    self.flag_ctr_vel_lin_x = True
+    self.vel_lin_x_pid = ars_pid.PID()
     self.vel_lin_x_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_vel_lin_y = True
+    self.vel_lin_y_pid = ars_pid.PID()
     self.vel_lin_y_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_vel_lin_z = True
+    self.vel_lin_z_pid = ars_pid.PID()
     self.vel_lin_z_pid.gains['P'] = 1.0
     #
+    self.flag_ctr_vel_ang_z = True
+    self.vel_ang_z_pid = ars_pid.PID()
     self.vel_ang_z_pid.gains['P'] = 1.0
 
 
@@ -246,14 +278,20 @@ class ArsMotionController:
       error_vel_lin_z = self.pos_loop_out_lin_cmd[2] - robot_velo_lin_robot[2]
     else:
       error_vel_lin_z = 0.0
-    self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2] + self.vel_lin_z_pid.call(time_stamp_ros, error_vel_lin_z)
+    if(self.flag_ctr_vel_lin_z):
+      self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2] + self.vel_lin_z_pid.call(time_stamp_ros, error_vel_lin_z)
+    else:
+      self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2]
     
     # Angular: z
     if(self.flag_set_pos_loop_out & self.flag_set_robot_vel_world):
       error_vel_ang_z = self.pos_loop_out_ang_cmd - robot_velo_ang_robot
     else:
       error_vel_ang_z = 0.0
-    self.robot_velo_ang_cmd[0] = self.robot_velo_ang_cmd_ref[0] + self.vel_ang_z_pid.call(time_stamp_ros, error_vel_ang_z)
+    if(self.flag_ctr_vel_ang_z):
+      self.robot_velo_ang_cmd[0] = self.robot_velo_ang_cmd_ref[0] + self.vel_ang_z_pid.call(time_stamp_ros, error_vel_ang_z)
+    else:
+      self.robot_velo_ang_cmd[0] = self.robot_velo_ang_cmd_ref[0]
 
     # End
     return
@@ -280,7 +318,10 @@ class ArsMotionController:
       error_pos_z = self.robot_posi_ref[2] - self.robot_posi[2]
     else:
       error_pos_z = 0.0
-    self.pos_loop_out_lin_cmd[2] = self.robot_velo_lin_world_ref[2] + self.pos_z_pid.call(time_stamp_ros, error_pos_z)
+    if(self.flag_ctr_pos_z):
+      self.pos_loop_out_lin_cmd[2] = self.robot_velo_lin_world_ref[2] + self.pos_z_pid.call(time_stamp_ros, error_pos_z)
+    else:
+      self.pos_loop_out_lin_cmd[2] = self.robot_velo_lin_world_ref[2]
 
 
     # Angular: z
@@ -288,11 +329,16 @@ class ArsMotionController:
       error_quat_simp = ars_lib_helpers.Quaternion.zerosQuatSimp()
       error_quat_simp[0] = self.robot_atti_quat_simp_ref[0]*self.robot_atti_quat_simp[0]+self.robot_atti_quat_simp_ref[1]*self.robot_atti_quat_simp[1]
       error_quat_simp[1] = self.robot_atti_quat_simp_ref[1]*self.robot_atti_quat_simp[0]-self.robot_atti_quat_simp_ref[0]*self.robot_atti_quat_simp[1]
+      if(error_quat_simp[0] < 0):
+        error_quat_simp = -1 * error_quat_simp
       #error_att_z = 2.0 * math.atan(error_quat_simp[1]/error_quat_simp[0])
       error_att_z = 2.0 * error_quat_simp[1]
     else:
       error_att_z = 0.0
-    self.pos_loop_out_ang_cmd[0] = self.robot_velo_ang_world_ref[0] + self.att_yaw_pid.call(time_stamp_ros, error_att_z)
+    if(self.flag_ctr_att_yaw):
+      self.pos_loop_out_ang_cmd[0] = self.robot_velo_ang_world_ref[0] + self.att_yaw_pid.call(time_stamp_ros, error_att_z)
+    else:
+      self.pos_loop_out_ang_cmd[0] = self.robot_velo_ang_world_ref[0]
 
 
     # Flag
