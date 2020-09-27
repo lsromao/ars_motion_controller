@@ -30,6 +30,8 @@ class PID:
 
     self.prev_time_stamp_ros = rospy.Time(0.0, 0.0)
 
+    self.gains = {'P': 1.0}
+
     self.control_cmd = 0.0
 
     return
