@@ -58,7 +58,7 @@ class ArsMotionController:
   robot_velo_cmd_time_stamp = rospy.Time(0.0, 0.0)
   robot_velo_lin_cmd = None
   robot_velo_ang_cmd = None
-  
+
 
   # Loops Internal
 
@@ -68,7 +68,7 @@ class ArsMotionController:
   #vel_loop_time_stamp_ros = rospy.Time(0.0, 0.0)
   #vel_loop_out_lin_cmd = None
   #vel_loop_out_ang_cmd = None
-  
+
   # Pos loop
   #
   pos_loop_time_stamp_ros = rospy.Time(0.0, 0.0)
@@ -225,7 +225,7 @@ class ArsMotionController:
     return
 
   def setRobotPose(self, robot_posi, robot_atti_quat_simp):
-    
+
     self.flag_set_robot_pose = True
 
     self.robot_posi = robot_posi
@@ -261,17 +261,15 @@ class ArsMotionController:
     robot_velo_lin_robot = ars_lib_helpers.Conversions.convertVelLinFromWorldToRobot(self.robot_velo_lin_world, self.robot_atti_quat_simp)
     robot_velo_ang_robot = ars_lib_helpers.Conversions.convertVelAngFromWorldToRobot(self.robot_velo_ang_world, self.robot_atti_quat_simp)
 
-
     # Linear: x & y
     # TODO BY STUDENT: BEGINNING
 
 
-    self.robot_velo_lin_cmd[0] = 0.0
-    self.robot_velo_lin_cmd[1] = 0.0
-    
+    self.robot_velo_lin_cmd[0] = 0.2
+    self.robot_velo_lin_cmd[1] = 1
+
 
     # TODO BY STUDENT: END
-
 
     # Linear: z
     if(self.flag_set_pos_loop_out & self.flag_set_robot_vel_world):
@@ -282,7 +280,7 @@ class ArsMotionController:
       self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2] + self.vel_lin_z_pid.call(time_stamp_ros, error_vel_lin_z)
     else:
       self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2]
-    
+
     # Angular: z
     if(self.flag_set_pos_loop_out & self.flag_set_robot_vel_world):
       error_vel_ang_z = self.pos_loop_out_ang_cmd - robot_velo_ang_robot
@@ -293,9 +291,28 @@ class ArsMotionController:
     else:
       self.robot_velo_ang_cmd[0] = self.robot_velo_ang_cmd_ref[0]
 
+
+    # Linear: X and Y
+    if(self.flag_set_pos_loop_out & self.flag_set_robot_vel_world):
+      error_vel_lin_x = self.pos_loop_out_lin_cmd[0] - robot_velo_lin_robot[0]
+      error_vel_lin_y = self.pos_loop_out_lin_cmd[1] - robot_velo_lin_robot[1]
+    else:
+      error_vel_lin_x = 0.0
+      error_vel_lin_y = 0.0
+
+    if(self.flag_ctr_vel_lin_x & self.flag_ctr_vel_lin_y):
+
+      x = self.robot_velo_lin_cmd_ref[0] + self.vel_lin_x_pid.call(time_stamp_ros, error_vel_lin_x)
+      y = self.robot_velo_lin_cmd_ref[1] + self.vel_lin_y_pid.call(time_stamp_ros, error_vel_lin_y)
+
+      world_to_robot = ars_lib_helpers.Conversions.convertVelLinFromWorldToRobot(np.array([x, y, 0]),
+                                                                                 self.robot_atti_quat_simp)
+
+      self.robot_velo_lin_cmd[0] = world_to_robot[0]
+      self.robot_velo_lin_cmd[1] = world_to_robot[1]
+
     # End
     return
-
 
   def posLoopMotionController(self, time_stamp_ros):
 
@@ -305,12 +322,23 @@ class ArsMotionController:
     # Linear: x & y
     # TODO BY STUDENT: BEGINNING
 
-
-    self.pos_loop_out_lin_cmd[0] = 0.0
-    self.pos_loop_out_lin_cmd[1] = 0.0
+    self.pos_loop_out_lin_cmd[0] = 1
+    self.pos_loop_out_lin_cmd[1] = 0
 
 
     # TODO BY STUDENT: END
+
+    # Linear: X and Y
+    if(self.flag_set_robot_pose & self.flag_set_robot_pose_ref):
+      error_pos_x = self.robot_posi_ref[0] - self.robot_posi[0]
+      error_pos_y = self.robot_posi_ref[1] - self.robot_posi[1]
+    else:
+      error_pos_x = 0.0
+      error_pos_y = 0.0
+    if(self.flag_ctr_pos_x & self.flag_ctr_pos_y):
+
+      self.pos_loop_out_lin_cmd[0] = self.robot_velo_lin_world_ref[0] + self.pos_x_pid.call(time_stamp_ros, error_pos_x)
+      self.pos_loop_out_lin_cmd[1] = self.robot_velo_lin_world_ref[1] + self.pos_y_pid.call(time_stamp_ros, error_pos_y)
 
 
     # Linear: z
