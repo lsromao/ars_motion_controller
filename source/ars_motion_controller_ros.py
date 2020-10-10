@@ -115,42 +115,20 @@ class ArsMotionControllerRos:
     return
 
   def controller_position(self, disable_pos):
-    if disable_pos:
-      self.motion_controller.flag_ctr_pos_x = False
-      self.motion_controller.flag_ctr_pos_y = False
-      self.motion_controller.flag_ctr_pos_z = False
-      self.motion_controller.flag_ctr_att_yaw = False
 
-      self.motion_controller.flag_set_robot_vel_world = True
-      self.motion_controller.flag_set_pos_loop_out = True
+      self.motion_controller.flag_ctr_pos_x = disable_pos
+      self.motion_controller.flag_ctr_pos_y = disable_pos
+      self.motion_controller.flag_ctr_pos_z = disable_pos
+      self.motion_controller.flag_ctr_att_yaw = disable_pos
 
-    else:
-      self.motion_controller.flag_ctr_pos_x = True
-      self.motion_controller.flag_ctr_pos_y = True
-      self.motion_controller.flag_ctr_pos_z = True
-      self.motion_controller.flag_ctr_att_yaw = True
-
-      self.motion_controller.flag_set_robot_vel_world = False
-      self.motion_controller.flag_set_pos_loop_out = False
 
   def controller_velocity(self, disable_vel):
-    if disable_vel:
-      self.motion_controller.flag_ctr_vel_lin_x = False
-      self.motion_controller.flag_ctr_vel_lin_y = False
-      self.motion_controller.flag_ctr_vel_lin_z = False
-      self.motion_controller.flag_ctr_vel_ang_z = False
 
-      self.motion_controller.flag_set_robot_pose_ref = True
-      self.motion_controller.flag_set_robot_pose = True  
+      self.motion_controller.flag_ctr_vel_lin_x = disable_vel
+      self.motion_controller.flag_ctr_vel_lin_y = disable_vel
+      self.motion_controller.flag_ctr_vel_lin_z = disable_vel
+      self.motion_controller.flag_ctr_vel_ang_z = disable_vel
 
-    else:
-      self.motion_controller.flag_ctr_vel_lin_x = True
-      self.motion_controller.flag_ctr_vel_lin_y = True
-      self.motion_controller.flag_ctr_vel_lin_z = True
-      self.motion_controller.flag_ctr_vel_ang_z = True
-
-      self.motion_controller.flag_set_robot_pose_ref = False
-      self.motion_controller.flag_set_robot_pose = False      
 
   def open(self):
 
@@ -262,7 +240,6 @@ class ArsMotionControllerRos:
 
 
   def robotVelWorldRefCallback(self, robot_vel_ref_msg):
-
     # Linear
     lin_vel_world_ref = np.zeros((3,), dtype=float)
     lin_vel_world_ref[0] = robot_vel_ref_msg.twist.linear.x
@@ -332,7 +309,6 @@ class ArsMotionControllerRos:
 
 
   def velLoopTimerCallback(self, timer_msg):
-
     # Get time
     time_stamp_current = rospy.Time.now()
 
@@ -347,7 +323,6 @@ class ArsMotionControllerRos:
 
 
   def posLoopTimerCallback(self, timer_msg):
-
     # Get time
     time_stamp_current = rospy.Time.now()
 
@@ -356,8 +331,3 @@ class ArsMotionControllerRos:
     
     # End
     return
-
-
-
-
-  
