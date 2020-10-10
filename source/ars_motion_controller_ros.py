@@ -111,12 +111,46 @@ class ArsMotionControllerRos:
     
     # TODO
 
-    ###
-
-    
     # End
     return
 
+  def controller_position(self, disable_pos):
+    if disable_pos:
+      self.motion_controller.flag_ctr_pos_x = False
+      self.motion_controller.flag_ctr_pos_y = False
+      self.motion_controller.flag_ctr_pos_z = False
+      self.motion_controller.flag_ctr_att_yaw = False
+
+      self.motion_controller.flag_set_robot_vel_world = True
+      self.motion_controller.flag_set_pos_loop_out = True
+
+    else:
+      self.motion_controller.flag_ctr_pos_x = True
+      self.motion_controller.flag_ctr_pos_y = True
+      self.motion_controller.flag_ctr_pos_z = True
+      self.motion_controller.flag_ctr_att_yaw = True
+
+      self.motion_controller.flag_set_robot_vel_world = False
+      self.motion_controller.flag_set_pos_loop_out = False
+
+  def controller_velocity(self, disable_vel):
+    if disable_vel:
+      self.motion_controller.flag_ctr_vel_lin_x = False
+      self.motion_controller.flag_ctr_vel_lin_y = False
+      self.motion_controller.flag_ctr_vel_lin_z = False
+      self.motion_controller.flag_ctr_vel_ang_z = False
+
+      self.motion_controller.flag_set_robot_pose_ref = True
+      self.motion_controller.flag_set_robot_pose = True  
+
+    else:
+      self.motion_controller.flag_ctr_vel_lin_x = True
+      self.motion_controller.flag_ctr_vel_lin_y = True
+      self.motion_controller.flag_ctr_vel_lin_z = True
+      self.motion_controller.flag_ctr_vel_ang_z = True
+
+      self.motion_controller.flag_set_robot_pose_ref = False
+      self.motion_controller.flag_set_robot_pose = False      
 
   def open(self):
 
@@ -245,7 +279,6 @@ class ArsMotionControllerRos:
     #
     return
 
-
   def robotCmdRefCallback(self, robot_cmd_ref_msg):
 
     # Linear
@@ -320,7 +353,6 @@ class ArsMotionControllerRos:
 
     #
     self.motion_controller.posLoopMotionController(time_stamp_current)
-
     
     # End
     return
