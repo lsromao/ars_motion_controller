@@ -246,14 +246,6 @@ class ArsMotionController:
         robot_velo_ang_robot = ars_lib_helpers.Conversions.convertVelAngFromWorldToRobot(self.robot_velo_ang_world,
                                                                                          self.robot_atti_quat_simp)
 
-        # Linear: x & y
-        # TODO BY STUDENT: BEGINNING
-
-        self.robot_velo_lin_cmd[0] = 0
-        self.robot_velo_lin_cmd[1] = 0
-
-        # TODO BY STUDENT: END
-
         # Linear: x y z
         if self.flag_set_pos_loop_out & self.flag_set_robot_vel_world:
             error_vel_lin_x = self.pos_loop_out_lin_cmd[0] - robot_velo_lin_robot[0]
@@ -299,14 +291,6 @@ class ArsMotionController:
     def posLoopMotionController(self, time_stamp_ros):
         # Time stamp
         self.pos_loop_time_stamp_ros = time_stamp_ros
-
-        # Linear: x & y
-        # TODO BY STUDENT: BEGINNING
-
-        self.pos_loop_out_lin_cmd[0] = 0
-        self.pos_loop_out_lin_cmd[1] = 0
-
-        # TODO BY STUDENT: END
 
         # Linear: X  Y Z
         if self.flag_set_robot_pose & self.flag_set_robot_pose_ref:
