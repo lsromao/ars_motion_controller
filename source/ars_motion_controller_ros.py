@@ -20,6 +20,7 @@ import geometry_msgs.msg
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import TwistStamped
+from dynamic_reconfigure.msg import BoolParameter
 
 import tf_conversions
 
@@ -86,6 +87,11 @@ class ArsMotionControllerRos:
 
   # Motion controller
   motion_controller = ArsMotionController()
+
+  #Disable/Enable Service
+  angular = None
+  vertical = None
+  horizontal = None
   
 
 
@@ -105,30 +111,9 @@ class ArsMotionControllerRos:
     
     # Package path
     pkg_path = rospkg.RosPack().get_path('ars_motion_controller')
-    
-
-    #### READING PARAMETERS ###
-    
-    # TODO
 
     # End
     return
-
-  def controller_position(self, disable_pos):
-
-      self.motion_controller.flag_ctr_pos_x = disable_pos
-      self.motion_controller.flag_ctr_pos_y = disable_pos
-      self.motion_controller.flag_ctr_pos_z = disable_pos
-      self.motion_controller.flag_ctr_att_yaw = disable_pos
-
-
-  def controller_velocity(self, disable_vel):
-
-      self.motion_controller.flag_ctr_vel_lin_x = disable_vel
-      self.motion_controller.flag_ctr_vel_lin_y = disable_vel
-      self.motion_controller.flag_ctr_vel_lin_z = disable_vel
-      self.motion_controller.flag_ctr_vel_ang_z = disable_vel
-
 
   def open(self):
 
@@ -144,6 +129,10 @@ class ArsMotionControllerRos:
     self.robot_vel_world_ref_sub = rospy.Subscriber('robot_velocity_world_ref', TwistStamped, self.robotVelWorldRefCallback)
     #
     self.robot_vel_cmd_ref_sub = rospy.Subscriber('robot_cmd_ref', TwistStamped, self.robotCmdRefCallback)
+
+    self.vertical = rospy.Subscriber('vertical', BoolParameter, self.verticalCallback)
+    self.horizontal = rospy.Subscriber('horizontal', BoolParameter, self.horizontalCallback)
+    self.angular = rospy.Subscriber('angular', BoolParameter, self.angularCallback)
 
 
     # Publisher
@@ -257,7 +246,6 @@ class ArsMotionControllerRos:
     return
 
   def robotCmdRefCallback(self, robot_cmd_ref_msg):
-
     # Linear
     lin_vel_cmd_ref = np.zeros((3,), dtype=float)
     lin_vel_cmd_ref[0] = robot_cmd_ref_msg.twist.linear.x
@@ -331,3 +319,21 @@ class ArsMotionControllerRos:
     
     # End
     return
+
+  def verticalCallback(self, msg):
+
+    self.motion_controller.flag_ctr_pos_z = msg.value
+    self.motion_controller.flag_ctr_vel_lin_z = msg.value
+
+  def horizontalCallback(self, msg):
+
+    self.motion_controller.flag_ctr_vel_lin_x = msg.value
+    self.motion_controller.flag_ctr_pos_x = msg.value
+
+    self.motion_controller.flag_ctr_vel_lin_y = msg.value
+    self.motion_controller.flag_ctr_pos_y = msg.value
+
+  def angularCallback(self, msg):
+
+    self.motion_controller.flag_ctr_att_yaw = msg.value
+    self.motion_controller.flag_ctr_vel_ang_z = msg.value

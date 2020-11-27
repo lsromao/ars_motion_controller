@@ -237,6 +237,7 @@ class ArsMotionController:
         return self.robot_velo_ang_cmd
 
     def velLoopMotionController(self, time_stamp_ros):
+
         # Time stamp
         self.robot_velo_cmd_time_stamp = time_stamp_ros
 
@@ -273,6 +274,21 @@ class ArsMotionController:
                                                                                                   error_vel_lin_z)
         else:
             self.robot_velo_lin_cmd[2] = self.robot_velo_lin_cmd_ref[2]
+
+        if self.robot_velo_lin_cmd[0] > 1.0:
+            self.robot_velo_lin_cmd[0] = 1.0
+        if self.robot_velo_lin_cmd[0] < -1.0:
+            self.robot_velo_lin_cmd[0] = -1.0
+
+        if self.robot_velo_lin_cmd[1] > 1.0:
+            self.robot_velo_lin_cmd[1] = 1.0
+        if self.robot_velo_lin_cmd[1] < -1.0:
+            self.robot_velo_lin_cmd[1] = -1.0
+
+        if self.robot_velo_lin_cmd[2] > 1.0:
+            self.robot_velo_lin_cmd[2] = 1.0
+        if self.robot_velo_lin_cmd[2] < -1.0:
+            self.robot_velo_lin_cmd[2] = -1.0
 
         # Angular: z
         if self.flag_set_pos_loop_out & self.flag_set_robot_vel_world:
