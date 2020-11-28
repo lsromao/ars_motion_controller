@@ -69,6 +69,7 @@ class ArsMotionController:
     pos_loop_out_ang_cmd = None
 
     # PIDs
+    previous_error = 0
     # Pos
     #
     flag_ctr_pos_x = True
@@ -147,37 +148,29 @@ class ArsMotionController:
         #
         self.flag_ctr_pos_x = True
         self.pos_x_pid = ars_pid.PID()
-        self.pos_x_pid.gains['P'] = 1
         #
         self.flag_ctr_pos_y = True
         self.pos_y_pid = ars_pid.PID()
-        self.pos_y_pid.gains['P'] = 1
         #
         self.flag_ctr_pos_z = True
         self.pos_z_pid = ars_pid.PID()
-        self.pos_z_pid.gains['P'] = 1
         #
         self.flag_ctr_att_yaw = True
         self.att_yaw_pid = ars_pid.PID()
-        self.att_yaw_pid.gains['P'] = 1
 
         # Vel
         #
         self.flag_ctr_vel_lin_x = True
         self.vel_lin_x_pid = ars_pid.PID()
-        self.vel_lin_x_pid.gains['P'] = 1.0
         #
         self.flag_ctr_vel_lin_y = True
         self.vel_lin_y_pid = ars_pid.PID()
-        self.vel_lin_y_pid.gains['P'] = 1.0
         #
         self.flag_ctr_vel_lin_z = True
         self.vel_lin_z_pid = ars_pid.PID()
-        self.vel_lin_z_pid.gains['P'] = 1.0
         #
         self.flag_ctr_vel_ang_z = True
         self.vel_ang_z_pid = ars_pid.PID()
-        self.vel_ang_z_pid.gains['P'] = 1.0
 
         # End
         return
@@ -237,7 +230,6 @@ class ArsMotionController:
         return self.robot_velo_ang_cmd
 
     def velLoopMotionController(self, time_stamp_ros):
-
         # Time stamp
         self.robot_velo_cmd_time_stamp = time_stamp_ros
 
