@@ -6,4 +6,3 @@
    - motion_controller/angular
    - motion_controller/vertical
    - motion_controller/horizontal
- - [Motion Controller Video](https://youtu.be/dimoVrsy4v8)
